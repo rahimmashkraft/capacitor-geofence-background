@@ -1,0 +1,257 @@
+{
+  "api": {
+    "name": "GeofenceBackgroundPlugin",
+    "slug": "geofencebackgroundplugin",
+    "docs": "",
+    "tags": [],
+    "methods": [
+      {
+        "name": "startLocationService",
+        "signature": "() => Promise<void>",
+        "parameters": [],
+        "returns": "Promise<void>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "startlocationservice"
+      },
+      {
+        "name": "stopLocationService",
+        "signature": "() => Promise<void>",
+        "parameters": [],
+        "returns": "Promise<void>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "stoplocationservice"
+      },
+      {
+        "name": "checkAndRequestPermissions",
+        "signature": "() => Promise<void>",
+        "parameters": [],
+        "returns": "Promise<void>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "checkandrequestpermissions"
+      },
+      {
+        "name": "addGeofence",
+        "signature": "(options: { id: string; latitude: number; longitude: number; radius: number; transitionType: number; }) => Promise<void>",
+        "parameters": [
+          {
+            "name": "options",
+            "docs": "",
+            "type": "{ id: string; latitude: number; longitude: number; radius: number; transitionType: number; }"
+          }
+        ],
+        "returns": "Promise<void>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "addgeofence"
+      },
+      {
+        "name": "removeGeofence",
+        "signature": "(options: { id: string; }) => Promise<void>",
+        "parameters": [
+          {
+            "name": "options",
+            "docs": "",
+            "type": "{ id: string; }"
+          }
+        ],
+        "returns": "Promise<void>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "removegeofence"
+      },
+      {
+        "name": "removeAllGeofences",
+        "signature": "() => Promise<void>",
+        "parameters": [],
+        "returns": "Promise<void>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "removeallgeofences"
+      },
+      {
+        "name": "getGeofences",
+        "signature": "() => Promise<{ geofences: any[]; }>",
+        "parameters": [],
+        "returns": "Promise<{ geofences: any[]; }>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "getgeofences"
+      },
+      {
+        "name": "getLocations",
+        "signature": "() => Promise<{ locations: any[]; }>",
+        "parameters": [],
+        "returns": "Promise<{ locations: any[]; }>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "getlocations"
+      },
+      {
+        "name": "getPermissionsStatus",
+        "signature": "() => Promise<{ status: string; }>",
+        "parameters": [],
+        "returns": "Promise<{ status: string; }>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "getpermissionsstatus"
+      },
+      {
+        "name": "isIgnoringBatteryOptimizations",
+        "signature": "() => Promise<{ isIgnoring: boolean; }>",
+        "parameters": [],
+        "returns": "Promise<{ isIgnoring: boolean; }>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "isignoringbatteryoptimizations"
+      },
+      {
+        "name": "requestIgnoreBatteryOptimizations",
+        "signature": "() => Promise<void>",
+        "parameters": [],
+        "returns": "Promise<void>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "requestignorebatteryoptimizations"
+      },
+      {
+        "name": "openSettings",
+        "signature": "() => Promise<void>",
+        "parameters": [],
+        "returns": "Promise<void>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "opensettings"
+      },
+      {
+        "name": "isLocationServiceRunning",
+        "signature": "() => Promise<{ isRunning: boolean; }>",
+        "parameters": [],
+        "returns": "Promise<{ isRunning: boolean; }>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "islocationservicerunning"
+      },
+      {
+        "name": "isGooglePlayServicesAvailable",
+        "signature": "() => Promise<{ isAvailable: boolean; }>",
+        "parameters": [],
+        "returns": "Promise<{ isAvailable: boolean; }>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "isgoogleplayservicesavailable"
+      },
+      {
+        "name": "requestGooglePlayServices",
+        "signature": "() => Promise<void>",
+        "parameters": [],
+        "returns": "Promise<void>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "requestgoogleplayservices"
+      },
+      {
+        "name": "isLocationEnabled",
+        "signature": "() => Promise<{ isEnabled: boolean; }>",
+        "parameters": [],
+        "returns": "Promise<{ isEnabled: boolean; }>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "islocationenabled"
+      },
+      {
+        "name": "requestLocationEnabling",
+        "signature": "() => Promise<void>",
+        "parameters": [],
+        "returns": "Promise<void>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "requestlocationenabling"
+      },
+      {
+        "name": "isBackgroundLocationPermissionGranted",
+        "signature": "() => Promise<{ isGranted: boolean; }>",
+        "parameters": [],
+        "returns": "Promise<{ isGranted: boolean; }>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "isbackgroundlocationpermissiongranted"
+      },
+      {
+        "name": "requestBackgroundLocationPermission",
+        "signature": "() => Promise<void>",
+        "parameters": [],
+        "returns": "Promise<void>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "requestbackgroundlocationpermission"
+      },
+      {
+        "name": "isIgnoringOptimizations",
+        "signature": "() => Promise<{ isIgnoring: boolean; }>",
+        "parameters": [],
+        "returns": "Promise<{ isIgnoring: boolean; }>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "isignoringoptimizations"
+      },
+      {
+        "name": "requestIgnoreOptimizations",
+        "signature": "() => Promise<void>",
+        "parameters": [],
+        "returns": "Promise<void>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "requestignoreoptimizations"
+      },
+      {
+        "name": "isIgnoringDataSaver",
+        "signature": "() => Promise<{ isIgnoring: boolean; }>",
+        "parameters": [],
+        "returns": "Promise<{ isIgnoring: boolean; }>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "isignoringdatasaver"
+      },
+      {
+        "name": "requestIgnoreDataSaver",
+        "signature": "() => Promise<void>",
+        "parameters": [],
+        "returns": "Promise<void>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "requestignoredatasaver"
+      }
+    ],
+    "properties": []
+  },
+  "interfaces": [],
+  "enums": [],
+  "typeAliases": [],
+  "pluginConfigs": []
+}

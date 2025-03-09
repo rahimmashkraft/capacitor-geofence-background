@@ -1,0 +1,1 @@
+{"version":3,"file":"plugin.cjs.js","sources":["esm/index.js"],"sourcesContent":["import { registerPlugin } from '@capacitor/core';\nconst GeofenceBackground = registerPlugin('GeofenceBackground');\nexport { GeofenceBackground };\n//# sourceMappingURL=index.js.map"],"names":["registerPlugin"],"mappings":";;;;;;AACK,MAAC,kBAAkB,GAAGA,mBAAc,CAAC,oBAAoB;;;;"}
