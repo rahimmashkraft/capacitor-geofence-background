@@ -1,2 +1,19 @@
 # capacitor-geofence-background
-Geofence Background Plugin – A Capacitor plugin that tracks the user's location continuously in the foreground, background, and even when the app is killed. It runs as a foreground service and sends location updates to a server, ensuring reliable tracking.
+
+This plugin track your location in app kill state
+
+## Install
+
+```bash
+npm install capacitor-geofence-background
+npx cap sync
+```
+
+## API
+
+<docgen-index></docgen-index>
+
+<docgen-api>
+<!-- run docgen to generate docs from the source -->
+<!-- More info: https://github.com/ionic-team/capacitor-docgen -->
+</docgen-api>
