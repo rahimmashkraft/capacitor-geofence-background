@@ -1,6 +1,7 @@
 package com.mr.geofencebackground;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
@@ -11,11 +12,10 @@ import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import com.getcapacitor.BridgeActivity;
 import com.getcapacitor.Plugin;
+import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.PluginCall;
-import com.getcapacitor.JSObject;
 
 @CapacitorPlugin(name = "GeofenceBackground")
 public class GeofenceBackgroundPlugin extends Plugin {
@@ -72,6 +72,7 @@ public class GeofenceBackgroundPlugin extends Plugin {
         }
     }
 
+    @SuppressLint("LongLogTag")
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == PERMISSION_REQUEST_CODE) {
             boolean allGranted = true;

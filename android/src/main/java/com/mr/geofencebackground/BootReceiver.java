@@ -1,9 +1,11 @@
-package app.FitnessCompanyWebsterFairport.com;
+package com.mr.geofencebackground;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+
+import com.mr.geofencebackground.LocationForegroundService;
 
 public class BootReceiver extends BroadcastReceiver {
     @Override
