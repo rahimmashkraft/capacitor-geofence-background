@@ -249,8 +249,34 @@
       },
       {
         "name": "startTrackUser",
-        "signature": "() => Promise<void>",
-        "parameters": [],
+        "signature": "(lat: any, long: any, radius: any, apiEndPoint: any, userID: any) => Promise<void>",
+        "parameters": [
+          {
+            "name": "lat",
+            "docs": "",
+            "type": "any"
+          },
+          {
+            "name": "long",
+            "docs": "",
+            "type": "any"
+          },
+          {
+            "name": "radius",
+            "docs": "",
+            "type": "any"
+          },
+          {
+            "name": "apiEndPoint",
+            "docs": "",
+            "type": "any"
+          },
+          {
+            "name": "userID",
+            "docs": "",
+            "type": "any"
+          }
+        ],
         "returns": "Promise<void>",
         "tags": [],
         "docs": "",
