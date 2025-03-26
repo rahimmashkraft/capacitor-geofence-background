@@ -36,7 +36,7 @@ npx cap sync
 * [`requestIgnoreOptimizations()`](#requestignoreoptimizations)
 * [`isIgnoringDataSaver()`](#isignoringdatasaver)
 * [`requestIgnoreDataSaver()`](#requestignoredatasaver)
-* [`startTrackUser()`](#starttrackuser)
+* [`startTrackUser(...)`](#starttrackuser)
 * [`stopTrackUser()`](#stoptrackuser)
 
 </docgen-index>
@@ -279,11 +279,19 @@ requestIgnoreDataSaver() => Promise<void>
 --------------------
 
 
-### startTrackUser()
+### startTrackUser(...)
 
 ```typescript
-startTrackUser() => Promise<void>
+startTrackUser(lat: any, long: any, radius: any, apiEndPoint: any, userID: any) => Promise<void>
 ```
+
+| Param             | Type             |
+| ----------------- | ---------------- |
+| **`lat`**         | <code>any</code> |
+| **`long`**        | <code>any</code> |
+| **`radius`**      | <code>any</code> |
+| **`apiEndPoint`** | <code>any</code> |
+| **`userID`**      | <code>any</code> |
 
 --------------------
 
