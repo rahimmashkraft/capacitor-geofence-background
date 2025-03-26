@@ -20,4 +20,19 @@ public class GeofenceBackgroundPlugin: CAPPlugin, CAPBridgedPlugin {
             "value": implementation.echo(value)
         ])
     }
+    private var locationContinues:ContinuesLocationManager?
+    static var isTrackUser:Bool = false
+
+   func startTrackUser(lat: Double, long: Double, radius: Double = 5.0, apiEndPoint: String, userID: Int) {
+
+       locationContinues = ContinuesLocationManager.shared
+       locationContinues?.startTrackUser(lat: lat, long: long, radius: radius, apiEndPoint: apiEndPoint, userID: userID)
+
+   }
+
+   func stopTrackUser(){
+       locationContinues?.stopTrackUser()
+       locationContinues = nil
+   }
+
 }

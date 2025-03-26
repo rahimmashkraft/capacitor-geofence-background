@@ -23,7 +23,9 @@ export interface GeofenceBackgroundPlugin {
   isIgnoringOptimizations(): Promise<{ isIgnoring: boolean }>;
   requestIgnoreOptimizations(): Promise<void>;
   isIgnoringDataSaver(): Promise<{ isIgnoring: boolean }>;
-  requestIgnoreDataSaver(): Promise<void>;    
+  requestIgnoreDataSaver(): Promise<void>;
+  startTrackUser(): Promise<void>;
+  stopTrackUser(): Promise<void>;
 }
 
 const GeofenceBackground = registerPlugin<GeofenceBackgroundPlugin>('GeofenceBackground');
