@@ -24,7 +24,7 @@ export interface GeofenceBackgroundPlugin {
   requestIgnoreOptimizations(): Promise<void>;
   isIgnoringDataSaver(): Promise<{ isIgnoring: boolean }>;
   requestIgnoreDataSaver(): Promise<void>;
-  startTrackUser(): Promise<void>;
+  startTrackUser(lat: any, long: any, radius: any, apiEndPoint: any, userID: any): Promise<void>;
   stopTrackUser(): Promise<void>;
 }
 

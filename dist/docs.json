@@ -246,6 +246,26 @@
         "docs": "",
         "complexTypes": [],
         "slug": "requestignoredatasaver"
+      },
+      {
+        "name": "startTrackUser",
+        "signature": "() => Promise<void>",
+        "parameters": [],
+        "returns": "Promise<void>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "starttrackuser"
+      },
+      {
+        "name": "stopTrackUser",
+        "signature": "() => Promise<void>",
+        "parameters": [],
+        "returns": "Promise<void>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "stoptrackuser"
       }
     ],
     "properties": []

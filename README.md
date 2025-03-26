@@ -36,6 +36,8 @@ npx cap sync
 * [`requestIgnoreOptimizations()`](#requestignoreoptimizations)
 * [`isIgnoringDataSaver()`](#isignoringdatasaver)
 * [`requestIgnoreDataSaver()`](#requestignoredatasaver)
+* [`startTrackUser()`](#starttrackuser)
+* [`stopTrackUser()`](#stoptrackuser)
 
 </docgen-index>
 
@@ -272,6 +274,24 @@ isIgnoringDataSaver() => Promise<{ isIgnoring: boolean; }>
 
 ```typescript
 requestIgnoreDataSaver() => Promise<void>
+```
+
+--------------------
+
+
+### startTrackUser()
+
+```typescript
+startTrackUser() => Promise<void>
+```
+
+--------------------
+
+
+### stopTrackUser()
+
+```typescript
+stopTrackUser() => Promise<void>
 ```
 
 --------------------
