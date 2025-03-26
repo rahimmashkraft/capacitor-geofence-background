@@ -50,6 +50,8 @@ export interface GeofenceBackgroundPlugin {
         isIgnoring: boolean;
     }>;
     requestIgnoreDataSaver(): Promise<void>;
+    startTrackUser(): Promise<void>;
+    stopTrackUser(): Promise<void>;
 }
 declare const GeofenceBackground: GeofenceBackgroundPlugin;
 export { GeofenceBackground };
