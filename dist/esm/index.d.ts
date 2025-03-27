@@ -50,7 +50,7 @@ export interface GeofenceBackgroundPlugin {
         isIgnoring: boolean;
     }>;
     requestIgnoreDataSaver(): Promise<void>;
-    startTrackUser(lat: any, long: any, radius: any, apiEndPoint: any, userID: any): Promise<void>;
+    startTrackUser(body: any): Promise<void>;
     stopTrackUser(): Promise<void>;
 }
 declare const GeofenceBackground: GeofenceBackgroundPlugin;

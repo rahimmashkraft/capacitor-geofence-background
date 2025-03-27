@@ -249,30 +249,10 @@
       },
       {
         "name": "startTrackUser",
-        "signature": "(lat: any, long: any, radius: any, apiEndPoint: any, userID: any) => Promise<void>",
+        "signature": "(body: any) => Promise<void>",
         "parameters": [
           {
-            "name": "lat",
-            "docs": "",
-            "type": "any"
-          },
-          {
-            "name": "long",
-            "docs": "",
-            "type": "any"
-          },
-          {
-            "name": "radius",
-            "docs": "",
-            "type": "any"
-          },
-          {
-            "name": "apiEndPoint",
-            "docs": "",
-            "type": "any"
-          },
-          {
-            "name": "userID",
+            "name": "body",
             "docs": "",
             "type": "any"
           }

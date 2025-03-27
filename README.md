@@ -282,16 +282,12 @@ requestIgnoreDataSaver() => Promise<void>
 ### startTrackUser(...)
 
 ```typescript
-startTrackUser(lat: any, long: any, radius: any, apiEndPoint: any, userID: any) => Promise<void>
+startTrackUser(body: any) => Promise<void>
 ```
 
-| Param             | Type             |
-| ----------------- | ---------------- |
-| **`lat`**         | <code>any</code> |
-| **`long`**        | <code>any</code> |
-| **`radius`**      | <code>any</code> |
-| **`apiEndPoint`** | <code>any</code> |
-| **`userID`**      | <code>any</code> |
+| Param      | Type             |
+| ---------- | ---------------- |
+| **`body`** | <code>any</code> |
 
 --------------------
 

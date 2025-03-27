@@ -6,7 +6,14 @@ import Capacitor
  * here: https://capacitorjs.com/docs/plugins/ios
  */
 @objc(GeofenceBackgroundPlugin)
-public class GeofenceBackgroundPlugin: CAPPlugin {
+public class GeofenceBackgroundPlugin: CAPPlugin, CAPBridgedPlugin {
+    
+        public let pluginMethods: [CAPPluginMethod] = [
+         CAPPluginMethod(name: "startTrackUser", returnType: CAPPluginReturnPromise)
+     ]
+    
+    public let identifier = "GeofenceBackgroundPlugin"
+    public let jsName = "GeofenceBackground"
     private var locationContinues: ContinuesLocationManager?
     static var isTrackUser: Bool = false
 
@@ -19,20 +26,34 @@ public class GeofenceBackgroundPlugin: CAPPlugin {
         call.resolve([
             "value": value
         ])
-    }
+    }   
+    // func startTrackUser(lat: Double, long: Double, radius: Double = 5.0, apiEndPoint: String, userID: Int) {
+ 
+    //     locationContinues = ContinuesLocationManager.shared
+    //     locationContinues?.startTrackUser(lat: lat, long: long, radius: radius, apiEndPoint: apiEndPoint, userID: userID)
+
+ 
+    // }
 
     @objc func startTrackUser(_ call: CAPPluginCall) {
-        guard let lat = call.getDouble("lat"),
-              let long = call.getDouble("long"),
-              let apiEndPoint = call.getString("apiEndPoint"),
-              let userID = call.getInt("userID") else {
+        let body = call.options as? [String:Any] ?? [:]
+
+        guard let latString = body["lat"] as? String,
+              let longString = body["long"] as? String,
+              let apiEndPoint = body["apiEndPoint"] as? String,
+              let userIDString = body["userID"] as? String,
+
+              let lat = Double(latString),
+              let long = Double(longString),
+              let userID = Int(userIDString) else {
             call.reject("Missing or invalid parameters")
             return
         }
 
-        let radius = call.getDouble("radius") ?? 5.0
-
-        locationContinues?.startTrackUser(lat: lat, long: long, radius: radius, apiEndPoint: apiEndPoint, userID: userID)
+        let radius = Double(body["radius"] as? String ?? "5.0") ?? 5.0  // Default radius if conversion fails
+        let auth_token = body["auth_token"] as? String ?? ""
+        
+        locationContinues?.startTrackUser(lat: lat, long: long, radius: radius, apiEndPoint: apiEndPoint, userID: userID, auth_token: auth_token)
         GeofenceBackgroundPlugin.isTrackUser = true
 
         call.resolve([
@@ -41,7 +62,8 @@ public class GeofenceBackgroundPlugin: CAPPlugin {
             "longitude": long,
             "radius": radius,
             "apiEndPoint": apiEndPoint,
-            "userID": userID
+            "userID": userID,
+            "auth_token": auth_token
         ])
     }
 
