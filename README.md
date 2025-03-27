@@ -1,6 +1,14 @@
 # capacitor-geofence-background
 
-This plugin track your location in app kill state
+This plugin track your location in app kill state.
+
+To properly implement this, you would need:
+
+Background Location Tracking: Using iOS background location services to capture location updates even when the app is killed.
+
+Geofencing: To detect when the user enters or exits a specified radius.
+
+Check-in/Check-out Logic: Automatically triggering the checkInOrCheckOutUser function when the user enters or exits the defined area.
 
 ## Install
 
