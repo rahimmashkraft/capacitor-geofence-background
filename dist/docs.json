@@ -249,34 +249,147 @@
       },
       {
         "name": "startTrackUser",
-        "signature": "(body: any) => Promise<void>",
+        "signature": "(options: StartTrackUserOptions) => Promise<StartTrackUserResult>",
         "parameters": [
           {
-            "name": "body",
+            "name": "options",
             "docs": "",
-            "type": "any"
+            "type": "StartTrackUserOptions"
           }
         ],
-        "returns": "Promise<void>",
+        "returns": "Promise<StartTrackUserResult>",
         "tags": [],
-        "docs": "",
-        "complexTypes": [],
+        "docs": "Starts watching a circular area. When the device enters or leaves it, the plugin POSTs\na check-in or check-out to `apiEndPoint`, also when the app is in the background or closed.\nCalling it again replaces the previous area. Works the same on iOS and Android.\n\nAsks for location permission if needed. Background tracking needs \"Always\" (iOS) or\n\"Allow all the time\" (Android).",
+        "complexTypes": [
+          "StartTrackUserResult",
+          "StartTrackUserOptions"
+        ],
         "slug": "starttrackuser"
       },
       {
         "name": "stopTrackUser",
-        "signature": "() => Promise<void>",
+        "signature": "() => Promise<{ message: string; }>",
         "parameters": [],
-        "returns": "Promise<void>",
+        "returns": "Promise<{ message: string; }>",
         "tags": [],
-        "docs": "",
+        "docs": "Stops watching the area and forgets the saved endpoint, user ID and token.",
         "complexTypes": [],
         "slug": "stoptrackuser"
       }
     ],
     "properties": []
   },
-  "interfaces": [],
+  "interfaces": [
+    {
+      "name": "StartTrackUserResult",
+      "slug": "starttrackuserresult",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "message",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "string"
+        },
+        {
+          "name": "latitude",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "number"
+        },
+        {
+          "name": "longitude",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "number"
+        },
+        {
+          "name": "radius",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "number"
+        },
+        {
+          "name": "apiEndPoint",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "string"
+        },
+        {
+          "name": "userID",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "number"
+        },
+        {
+          "name": "auth_token",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "StartTrackUserOptions",
+      "slug": "starttrackuseroptions",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "lat",
+          "tags": [],
+          "docs": "Latitude of the area's centre. A number or a numeric string.",
+          "complexTypes": [],
+          "type": "string | number"
+        },
+        {
+          "name": "long",
+          "tags": [],
+          "docs": "Longitude of the area's centre. A number or a numeric string.",
+          "complexTypes": [],
+          "type": "string | number"
+        },
+        {
+          "name": "radius",
+          "tags": [],
+          "docs": "Radius in metres. Defaults to 5. Both platforms detect boundary crossings reliably only\nfrom about 100 m.",
+          "complexTypes": [],
+          "type": "string | number | undefined"
+        },
+        {
+          "name": "apiEndPoint",
+          "tags": [],
+          "docs": "URL that receives a `multipart/form-data` POST with `latitude`, `longitude` (the area's centre),\n`aid`, `auth_token`, and `checkin` (`\"true\"` on entry, `\"false\"` on exit).",
+          "complexTypes": [],
+          "type": "string"
+        },
+        {
+          "name": "userID",
+          "tags": [],
+          "docs": "Sent as `aid`. A whole number or a numeric string.",
+          "complexTypes": [],
+          "type": "string | number"
+        },
+        {
+          "name": "auth_token",
+          "tags": [],
+          "docs": "Sent as `auth_token`. Defaults to an empty string.",
+          "complexTypes": [],
+          "type": "string | undefined"
+        }
+      ]
+    }
+  ],
   "enums": [],
   "typeAliases": [],
   "pluginConfigs": []

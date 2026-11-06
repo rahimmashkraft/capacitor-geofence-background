@@ -8,17 +8,32 @@ import Capacitor
 @objc(GeofenceBackgroundPlugin)
 public class GeofenceBackgroundPlugin: CAPPlugin, CAPBridgedPlugin {
     
-        public let pluginMethods: [CAPPluginMethod] = [
-         CAPPluginMethod(name: "startTrackUser", returnType: CAPPluginReturnPromise)
-     ]
-    
+    // Capacitor 6 only exposes methods listed here to JavaScript.
+    public let pluginMethods: [CAPPluginMethod] = [
+        CAPPluginMethod(name: "startTrackUser", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "stopTrackUser", returnType: CAPPluginReturnPromise)
+    ]
+
     public let identifier = "GeofenceBackgroundPlugin"
     public let jsName = "GeofenceBackground"
-    private var locationContinues: ContinuesLocationManager?
+    // Created when the bridge loads its plugins, so the CLLocationManager delegate is in place
+    // when iOS relaunches a killed app to deliver a region event. Never set to nil: the same
+    // manager is reused if tracking is started again after a stop.
+    private let locationContinues = ContinuesLocationManager.shared
     static var isTrackUser: Bool = false
 
-    override public func load() {
-        locationContinues = ContinuesLocationManager.shared
+    /// Reads a numeric option that JavaScript may send as a number (`24.86`) or a string (`"24.86"`).
+    private func doubleOption(_ call: CAPPluginCall, _ key: String) -> Double? {
+        if let value = call.getDouble(key) { return value }
+        if let text = call.getString(key) { return Double(text.trimmingCharacters(in: .whitespaces)) }
+        return nil
+    }
+
+    /// Reads an integer option that JavaScript may send as a number (`42`) or a string (`"42"`).
+    private func intOption(_ call: CAPPluginCall, _ key: String) -> Int? {
+        if let value = call.getInt(key) { return value }
+        if let text = call.getString(key) { return Int(text.trimmingCharacters(in: .whitespaces)) }
+        return nil
     }
 
     @objc func echo(_ call: CAPPluginCall) {
@@ -36,24 +51,18 @@ public class GeofenceBackgroundPlugin: CAPPlugin, CAPBridgedPlugin {
     // }
 
     @objc func startTrackUser(_ call: CAPPluginCall) {
-        let body = call.options as? [String:Any] ?? [:]
-
-        guard let latString = body["lat"] as? String,
-              let longString = body["long"] as? String,
-              let apiEndPoint = body["apiEndPoint"] as? String,
-              let userIDString = body["userID"] as? String,
-
-              let lat = Double(latString),
-              let long = Double(longString),
-              let userID = Int(userIDString) else {
-            call.reject("Missing or invalid parameters")
+        guard let lat = doubleOption(call, "lat"),
+              let long = doubleOption(call, "long"),
+              let userID = intOption(call, "userID"),
+              let apiEndPoint = call.getString("apiEndPoint"), !apiEndPoint.isEmpty else {
+            call.reject("Missing or invalid parameters: lat, long, userID and apiEndPoint are required")
             return
         }
 
-        let radius = Double(body["radius"] as? String ?? "5.0") ?? 5.0  // Default radius if conversion fails
-        let auth_token = body["auth_token"] as? String ?? ""
-        
-        locationContinues?.startTrackUser(lat: lat, long: long, radius: radius, apiEndPoint: apiEndPoint, userID: userID, auth_token: auth_token)
+        let radius = doubleOption(call, "radius") ?? 5.0  // Default radius if missing or invalid
+        let auth_token = call.getString("auth_token") ?? ""
+
+        locationContinues.startTrackUser(lat: lat, long: long, radius: radius, apiEndPoint: apiEndPoint, userID: userID, auth_token: auth_token)
         GeofenceBackgroundPlugin.isTrackUser = true
 
         call.resolve([
@@ -68,8 +77,7 @@ public class GeofenceBackgroundPlugin: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func stopTrackUser(_ call: CAPPluginCall) {
-        locationContinues?.stopTrackUser()
-        locationContinues = nil
+        locationContinues.stopTrackUser()
         GeofenceBackgroundPlugin.isTrackUser = false
         call.resolve(["message": "User tracking stopped successfully"])
     }

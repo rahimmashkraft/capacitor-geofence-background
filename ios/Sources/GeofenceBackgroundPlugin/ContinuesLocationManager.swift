@@ -5,6 +5,7 @@ import UIKit
 class ContinuesLocationManager: NSObject, CLLocationManagerDelegate {
 
     static let shared = ContinuesLocationManager()
+    private static let regionIdentifier = "dynamicRegion"
 
     private let locationManager = CLLocationManager()
     var myLocation: CLLocation?
@@ -16,7 +17,28 @@ class ContinuesLocationManager: NSObject, CLLocationManagerDelegate {
         locationManager.delegate = self
     }
 
+    func clearStoredUserDefaults() {
+        let defaults = UserDefaults.standard
+        let keys = [
+            "StoredLatitude",
+            "StoredLongitude",
+            "StoredRadius",
+            "StoredAPIEndpoint",
+            "StoredUserID",
+            "auth_token"
+        ]
+        
+        for key in keys {
+            defaults.removeObject(forKey: key)
+        }
+        
+        defaults.synchronize() // Optional
+    }
+
     func startTrackUser(lat: Double, long: Double, radius: Double = 5.0, apiEndPoint: String, userID: Int, auth_token: String) {
+        // Clear old stored values
+        clearStoredUserDefaults()
+        
         let defaults = UserDefaults.standard
         defaults.set(lat, forKey: "StoredLatitude")
         defaults.set(long, forKey: "StoredLongitude")
@@ -26,8 +48,10 @@ class ContinuesLocationManager: NSObject, CLLocationManagerDelegate {
         defaults.set(auth_token, forKey: "auth_token")
         defaults.synchronize()
 
-        if isTrackUser { return }
-        isTrackUser = true
+        print("User id startTrackUser \(userID)")
+
+    //    if isTrackUser { return }
+    //    isTrackUser = true
 
         locationManager.distanceFilter = kCLDistanceFilterNone
         locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation
@@ -38,6 +62,17 @@ class ContinuesLocationManager: NSObject, CLLocationManagerDelegate {
     func stopTrackUser() {
         isTrackUser = false
         locationManager.stopUpdatingLocation()
+
+        // iOS keeps monitored regions across app restarts, so look them up instead of relying on
+        // monitoredRegion, which is nil after a relaunch. Only touch this plugin's region: the
+        // list is shared with any other location manager in the host app.
+        for region in locationManager.monitoredRegions where region.identifier == ContinuesLocationManager.regionIdentifier {
+            locationManager.stopMonitoring(for: region)
+        }
+        monitoredRegion = nil
+
+        // Without a stored endpoint, checkInOrCheckOutUser sends nothing for any late region event.
+        clearStoredUserDefaults()
     }
 
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
@@ -116,7 +151,7 @@ class ContinuesLocationManager: NSObject, CLLocationManagerDelegate {
             let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
             // let regionRadius = 50.0
             let regionRadius = radius
-            let region = CLCircularRegion(center: coordinate, radius: regionRadius, identifier: "dynamicRegion")
+            let region = CLCircularRegion(center: coordinate, radius: regionRadius, identifier: ContinuesLocationManager.regionIdentifier)
             region.notifyOnEntry = true
             region.notifyOnExit = true
 
@@ -145,12 +180,14 @@ class ContinuesLocationManager: NSObject, CLLocationManagerDelegate {
         dateFormatter.pmSymbol = "PM"
         return dateFormatter.string(from: Date())
     }
-        func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
+    func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
+        guard region.identifier == ContinuesLocationManager.regionIdentifier else { return }
         print("User entered the region")
         checkInOrCheckOutUser(isCheckin: true)
     }
 
     func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
+        guard region.identifier == ContinuesLocationManager.regionIdentifier else { return }
         print("User exited the region")
         checkInOrCheckOutUser(isCheckin: false)
     }

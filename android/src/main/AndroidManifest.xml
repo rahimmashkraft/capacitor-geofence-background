@@ -1,23 +1,25 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-<uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
-    <uses-permission android:name="android.permission.INTERNET"/>
-        <!-- <service
-            android:name=".LocationForegroundService"
-            android:enabled="true"
-            android:exported="false"
-            android:foregroundServiceType="location"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- Geofences only fire while the app is closed if the user picks "Allow all the time". -->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
-        <receiver android:name=".BootReceiver" android:exported="false">
+    <application>
+        <!-- Receives geofence enter/exit events from Google Play services, even when the app is closed. -->
+        <receiver
+            android:name="com.mr.geofencebackground.GeofenceBroadcastReceiver"
+            android:exported="false" />
+
+        <!-- Android removes geofences on reboot; this adds ours back. -->
+        <receiver
+            android:name="com.mr.geofencebackground.BootReceiver"
+            android:exported="false">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
-        </receiver> -->
+        </receiver>
+    </application>
 </manifest>
