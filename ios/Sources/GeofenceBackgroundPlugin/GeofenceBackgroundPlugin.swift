@@ -22,6 +22,11 @@ public class GeofenceBackgroundPlugin: CAPPlugin, CAPBridgedPlugin {
     private let locationContinues = ContinuesLocationManager.shared
     static var isTrackUser: Bool = false
 
+    override public func load() {
+        // Send check-ins saved while there was no network, and retry when the network comes back.
+        CheckInQueue.shared.start()
+    }
+
     /// Reads a numeric option that JavaScript may send as a number (`24.86`) or a string (`"24.86"`).
     private func doubleOption(_ call: CAPPluginCall, _ key: String) -> Double? {
         if let value = call.getDouble(key) { return value }

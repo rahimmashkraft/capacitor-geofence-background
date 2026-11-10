@@ -76,7 +76,11 @@ export interface StartTrackUserOptions {
     radius?: number | string;
     /**
      * URL that receives a `multipart/form-data` POST with `latitude`, `longitude` (the area's centre),
-     * `aid`, `auth_token`, and `checkin` (`"true"` on entry, `"false"` on exit).
+     * `aid`, `auth_token`, `checkin` (`"true"` on entry, `"false"` on exit), `timestamp` (when it
+     * happened, ISO 8601 UTC) and `event_id` (unique per entry or exit).
+     *
+     * If the request fails (no network, timeout, 408, 429 or 5xx), it is saved and retried in order,
+     * so use `timestamp` for the attendance time and `event_id` to ignore duplicates.
      */
     apiEndPoint: string;
     /** Sent as `aid`. A whole number or a numeric string. */

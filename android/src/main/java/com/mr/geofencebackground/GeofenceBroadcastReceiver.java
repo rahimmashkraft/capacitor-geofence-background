@@ -43,16 +43,9 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
         boolean isCheckin = transition == Geofence.GEOFENCE_TRANSITION_ENTER;
         Log.d(GeofenceTracker.TAG, isCheckin ? "User entered the region" : "User exited the region");
 
-        // Keep the receiver alive while the request runs on a background thread.
+        // Keep the receiver alive while the request is sent (or saved for retry) on a background thread.
         PendingResult pendingResult = goAsync();
-        new Thread(() -> {
-            try {
-                GeofenceTracker.sendCheckIn(config, isCheckin);
-            } finally {
-                pendingResult.finish();
-            }
-        })
-            .start();
+        CheckInQueue.deliver(context, CheckInRequest.create(config, isCheckin), pendingResult::finish);
     }
 
     private static boolean isOurRegion(List<Geofence> geofences) {

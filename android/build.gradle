@@ -4,6 +4,8 @@ ext {
     androidxJunitVersion = project.hasProperty('androidxJunitVersion') ? rootProject.ext.androidxJunitVersion : '1.1.5'
     androidxEspressoCoreVersion = project.hasProperty('androidxEspressoCoreVersion') ? rootProject.ext.androidxEspressoCoreVersion : '3.5.1'
     playServicesLocationVersion = project.hasProperty('playServicesLocationVersion') ? rootProject.ext.playServicesLocationVersion : '21.3.0'
+    // 2.9.1 is the newest WorkManager that builds with compileSdk 34 (Capacitor 6); apps can set a newer one.
+    androidxWorkVersion = project.hasProperty('androidxWorkVersion') ? rootProject.ext.androidxWorkVersion : '2.9.1'
 }
 
 buildscript {
@@ -38,6 +40,10 @@ android {
     lint {
         abortOnError = false
     }
+    // Lets unit tests run code that logs with android.util.Log.
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
     // Java 17 so Capacitor 6 apps (JDK 17) can build it; Capacitor 7+ apps on JDK 21 can too.
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -56,6 +62,7 @@ dependencies {
     implementation project(':capacitor-android')
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
     implementation "com.google.android.gms:play-services-location:$playServicesLocationVersion"
+    implementation "androidx.work:work-runtime:$androidxWorkVersion"
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"

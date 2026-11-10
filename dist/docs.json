@@ -369,7 +369,7 @@
         {
           "name": "apiEndPoint",
           "tags": [],
-          "docs": "URL that receives a `multipart/form-data` POST with `latitude`, `longitude` (the area's centre),\n`aid`, `auth_token`, and `checkin` (`\"true\"` on entry, `\"false\"` on exit).",
+          "docs": "URL that receives a `multipart/form-data` POST with `latitude`, `longitude` (the area's centre),\n`aid`, `auth_token`, `checkin` (`\"true\"` on entry, `\"false\"` on exit), `timestamp` (when it\nhappened, ISO 8601 UTC) and `event_id` (unique per entry or exit).\n\nIf the request fails (no network, timeout, 408, 429 or 5xx), it is saved and retried in order,\nso use `timestamp` for the attendance time and `event_id` to ignore duplicates.",
           "complexTypes": [],
           "type": "string"
         },

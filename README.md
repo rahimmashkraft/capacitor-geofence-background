@@ -40,8 +40,19 @@ On every entry and exit, your endpoint receives a `multipart/form-data` POST wit
 | `aid`        | `userID`                                     |
 | `auth_token` | `auth_token`                                 |
 | `checkin`    | `true` on entry, `false` on exit             |
+| `timestamp`  | When the user entered or left, in UTC, for example `2026-11-10T09:02:13Z` |
+| `event_id`   | A unique ID for this entry or exit, the same on every retry |
 
 No request is sent for being inside the area when tracking starts, only for crossing its edge afterwards. Use a radius of about 100 m or more: neither platform detects smaller areas reliably.
+
+### No network? Requests are retried
+
+Each request is sent straight away. If that fails (no network, a timeout, or a `408`, `429` or `5xx` response), it is saved on the phone and retried, oldest first, so a check-out never arrives before its check-in. Any `2xx` response counts as delivered. Other responses, such as `400` or `401`, are treated as rejected and not retried.
+
+- **Android** retries through WorkManager as soon as there is network, even if the app is closed or the phone restarts.
+- **iOS** retries while the app is running, and as soon as the network comes back. iOS doesn't let a suspended app run, so a request saved while the app is in the background goes out the next time the app opens or the user next enters or leaves the area.
+
+Because a retried request can arrive late, record attendance using `timestamp` rather than the time the request arrives. A request can also arrive twice, for example if the connection drops just after your server saved it, so ignore any `event_id` you have already stored. Requests older than 7 days are dropped. Requests already saved are still sent after `stopTrackUser`, because they describe entries and exits that really happened.
 
 ## Platform setup
 
@@ -386,13 +397,13 @@ Stops watching the area and forgets the saved endpoint, user ID and token.
 
 #### StartTrackUserOptions
 
-| Prop              | Type                          | Description                                                                                                                                                                 |
-| ----------------- | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`lat`**         | <code>string \| number</code> | Latitude of the area's centre. A number or a numeric string.                                                                                                                |
-| **`long`**        | <code>string \| number</code> | Longitude of the area's centre. A number or a numeric string.                                                                                                               |
-| **`radius`**      | <code>string \| number</code> | Radius in metres. Defaults to 5. Both platforms detect boundary crossings reliably only from about 100 m.                                                                   |
-| **`apiEndPoint`** | <code>string</code>           | URL that receives a `multipart/form-data` POST with `latitude`, `longitude` (the area's centre), `aid`, `auth_token`, and `checkin` (`"true"` on entry, `"false"` on exit). |
-| **`userID`**      | <code>string \| number</code> | Sent as `aid`. A whole number or a numeric string.                                                                                                                          |
-| **`auth_token`**  | <code>string</code>           | Sent as `auth_token`. Defaults to an empty string.                                                                                                                          |
+| Prop              | Type                          | Description                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ----------------- | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`lat`**         | <code>string \| number</code> | Latitude of the area's centre. A number or a numeric string.                                                                                                                                                                                                                                                                                                                                                                                   |
+| **`long`**        | <code>string \| number</code> | Longitude of the area's centre. A number or a numeric string.                                                                                                                                                                                                                                                                                                                                                                                  |
+| **`radius`**      | <code>string \| number</code> | Radius in metres. Defaults to 5. Both platforms detect boundary crossings reliably only from about 100 m.                                                                                                                                                                                                                                                                                                                                      |
+| **`apiEndPoint`** | <code>string</code>           | URL that receives a `multipart/form-data` POST with `latitude`, `longitude` (the area's centre), `aid`, `auth_token`, `checkin` (`"true"` on entry, `"false"` on exit), `timestamp` (when it happened, ISO 8601 UTC) and `event_id` (unique per entry or exit). If the request fails (no network, timeout, 408, 429 or 5xx), it is saved and retried in order, so use `timestamp` for the attendance time and `event_id` to ignore duplicates. |
+| **`userID`**      | <code>string \| number</code> | Sent as `aid`. A whole number or a numeric string.                                                                                                                                                                                                                                                                                                                                                                                             |
+| **`auth_token`**  | <code>string</code>           | Sent as `auth_token`. Defaults to an empty string.                                                                                                                                                                                                                                                                                                                                                                                             |
 
 </docgen-api>

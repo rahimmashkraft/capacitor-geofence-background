@@ -194,54 +194,24 @@ class ContinuesLocationManager: NSObject, CLLocationManagerDelegate {
 
     func checkInOrCheckOutUser(isCheckin: Bool) {
         let defaults = UserDefaults.standard
-        let storedLat = defaults.double(forKey: "StoredLatitude")
-        let storedLong = defaults.double(forKey: "StoredLongitude")
         let storedAPIEndpoint = defaults.string(forKey: "StoredAPIEndpoint") ?? ""
-        let storedUserID = defaults.integer(forKey: "StoredUserID")
-        let auth_token = defaults.string(forKey: "auth_token") ?? ""
         print(isCheckin)
-        guard !storedAPIEndpoint.isEmpty, let url = URL(string: storedAPIEndpoint) else {
+        guard !storedAPIEndpoint.isEmpty else {
             print("Invalid API Endpoint")
             return
         }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        
-        let boundary = UUID().uuidString
-        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        
-        var body = ""
-        body += "--\(boundary)\r\n"
-        body += "Content-Disposition: form-data; name=\"latitude\"\r\n\r\n\(storedLat)\r\n"
-        body += "--\(boundary)\r\n"
-        body += "Content-Disposition: form-data; name=\"longitude\"\r\n\r\n\(storedLong)\r\n"
-        body += "--\(boundary)\r\n"
-        body += "Content-Disposition: form-data; name=\"aid\"\r\n\r\n\(storedUserID)\r\n"
-        body += "--\(boundary)\r\n"
-        body += "Content-Disposition: form-data; name=\"auth_token\"\r\n\r\n\(auth_token)\r\n"
-        body += "--\(boundary)\r\n"
-        body += "Content-Disposition: form-data; name=\"checkin\"\r\n\r\n\(isCheckin)\r\n"
-        body += "--\(boundary)--\r\n"
-        
-        request.httpBody = body.data(using: .utf8)
-        
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            DispatchQueue.main.async {
-                if let error = error {
-                    print("Error: \(error.localizedDescription)")
-                    return
-                }
-                if let httpResponse = response as? HTTPURLResponse {
-                    print("Response Status Code: \(httpResponse.statusCode)")
-                }
-                if let data = data, let responseString = String(data: data, encoding: .utf8) {
-                    print("Response Data: \(responseString)")
-                }
-            }
-        }
-        
-        task.resume()
+
+        // Sent now if possible; otherwise saved and retried, in order, until the server answers.
+        CheckInQueue.shared.deliver(CheckInRequest(
+            eventID: UUID().uuidString.lowercased(),
+            endpoint: storedAPIEndpoint,
+            authToken: defaults.string(forKey: "auth_token") ?? "",
+            userID: defaults.integer(forKey: "StoredUserID"),
+            latitude: defaults.double(forKey: "StoredLatitude"),
+            longitude: defaults.double(forKey: "StoredLongitude"),
+            isCheckin: isCheckin,
+            timestamp: Date()
+        ))
     }
 
 }
