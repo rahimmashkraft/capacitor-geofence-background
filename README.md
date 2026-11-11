@@ -11,7 +11,12 @@ npm install capacitor-geofence-background
 npx cap sync
 ```
 
-Works with Capacitor 6 and later (tested with 6, 7 and 8), with either CocoaPods or Swift Package Manager on iOS.
+Works with Capacitor 6 and later, with either CocoaPods or Swift Package Manager on iOS.
+
+Tested with Capacitor 6, 7 and 8: Android and iOS apps build with the plugin (iOS with both CocoaPods and Swift Package Manager), and check-in, check-out, retry after a failed request and `stopTrackUser` all work in the iOS Simulator and on a real Android 16 phone.
+
+- Xcode 27 only builds apps for iOS 15 and later. A Capacitor 6 app (iOS 13) or 7 app (iOS 14) built with it needs its iOS deployment target raised to 15.
+- With Swift Package Manager on Capacitor 6, use Capacitor 6.2.2: Capacitor's Swift package has no 6.2.3 release, so a 6.2.3 project can't resolve its packages.
 
 ## Usage
 
