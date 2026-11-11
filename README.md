@@ -1,5 +1,7 @@
 # capacitor-geofence-background
 
+[![npm version](https://img.shields.io/npm/v/capacitor-geofence-background)](https://www.npmjs.com/package/capacitor-geofence-background)
+
 Automatic check-in and check-out with a geofence. You give the plugin a location, a radius and an API endpoint. When the device enters or leaves that area, the plugin sends a check-in or check-out request to your server, even when the app is in the background or has been closed.
 
 It works the same way on iOS (region monitoring) and Android (Google Play services geofencing).
