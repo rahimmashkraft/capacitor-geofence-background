@@ -17,6 +17,18 @@ struct CheckInRequest: Codable, Equatable {
     let timestamp: Date
 }
 
+/// What happened to a request, as reported to JavaScript in the requestResult event.
+enum CheckInStatus: String {
+    /// The server answered with a 2xx status.
+    case sent
+    /// Sending failed, or earlier requests are still waiting: it is saved and retried.
+    case queued
+    /// The server rejected it; it is not retried.
+    case rejected
+    /// Too old, or too many requests waiting: it is thrown away without being sent.
+    case dropped
+}
+
 enum CheckInOutcome: Equatable {
     /// The server accepted it.
     case sent
@@ -138,6 +150,10 @@ final class CheckInQueue {
     private var retryDelay: TimeInterval
     private var isStarted = false
     private var pathMonitor: NWPathMonitor?
+    /// Requests already reported as queued, so a request that fails several times is reported once.
+    private var reportedQueued = Set<String>()
+
+    private var statusHandler: ((CheckInRequest, CheckInStatus) -> Void)?
 
     init(
         defaults: UserDefaults = .standard,
@@ -193,11 +209,22 @@ final class CheckInQueue {
         queue.async {
             self.pending.append(request)
             if self.pending.count > CheckInQueue.maxCount {
-                self.pending.removeFirst(self.pending.count - CheckInQueue.maxCount)
+                let overflow = self.pending.prefix(self.pending.count - CheckInQueue.maxCount)
+                self.pending.removeFirst(overflow.count)
+                overflow.forEach { self.report($0, .dropped) }
             }
             self.save()
+            // Waits behind requests saved earlier, so it can't be sent straight away.
+            if self.pending.count > 1 {
+                self.report(request, .queued)
+            }
             self.flushOnQueue()
         }
+    }
+
+    /// The handler runs on the queue's own thread whenever a request is sent, queued, rejected or dropped.
+    func setStatusHandler(_ handler: ((CheckInRequest, CheckInStatus) -> Void)?) {
+        queue.async { self.statusHandler = handler }
     }
 
     func flush() {
@@ -231,9 +258,11 @@ final class CheckInQueue {
                         self.pending.removeFirst()
                         self.save()
                     }
+                    self.report(head, outcome == .sent ? .sent : .rejected)
                     self.retryDelay = self.minRetryDelay
                     self.flushOnQueue()
                 case .retry:
+                    self.report(head, .queued)
                     self.scheduleRetry()
                 }
                 endBackgroundTime()
@@ -258,9 +287,21 @@ final class CheckInQueue {
         let kept = pending.filter { $0.timestamp >= cutoff }
         if kept.count != pending.count {
             print("Dropping \(pending.count - kept.count) check-in(s) older than 7 days")
+            let dropped = pending.filter { $0.timestamp < cutoff }
             pending = kept
             save()
+            dropped.forEach { report($0, .dropped) }
         }
+    }
+
+    /// Runs on the queue. Reports queued only the first time for each request.
+    private func report(_ request: CheckInRequest, _ status: CheckInStatus) {
+        if status == .queued {
+            guard reportedQueued.insert(request.eventID).inserted else { return }
+        } else {
+            reportedQueued.remove(request.eventID)
+        }
+        statusHandler?(request, status)
     }
 
     private func save() {

@@ -25,10 +25,20 @@ public class CheckInWorker extends Worker {
         }
         if (System.currentTimeMillis() - request.timestampMillis > CheckInQueue.MAX_AGE_MS) {
             Log.w(GeofenceTracker.TAG, "Dropping a check-in older than 7 days: " + request.eventId);
+            PluginEvents.result(request, PluginEvents.DROPPED);
             return Result.success();
         }
 
         // Only RETRY repeats it. A rejected request counts as done so the ones behind it still go out.
-        return CheckInSender.send(request) == CheckInSender.Outcome.RETRY ? Result.retry() : Result.success();
+        switch (CheckInSender.send(request)) {
+            case SENT:
+                PluginEvents.result(request, PluginEvents.SENT);
+                return Result.success();
+            case DROP:
+                PluginEvents.result(request, PluginEvents.REJECTED);
+                return Result.success();
+            default:
+                return Result.retry();
+        }
     }
 }

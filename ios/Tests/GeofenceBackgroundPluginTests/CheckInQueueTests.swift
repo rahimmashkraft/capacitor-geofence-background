@@ -104,6 +104,61 @@ final class CheckInQueueTests: XCTestCase {
         XCTAssertTrue(queue.pendingRequests.isEmpty)
     }
 
+    /// Collects what the queue reports, in order.
+    private final class StatusLog {
+        private let lock = NSLock()
+        private var items: [String] = []
+        func record(_ request: CheckInRequest, _ status: CheckInStatus) {
+            lock.lock()
+            items.append("\(request.eventID) \(status.rawValue)")
+            lock.unlock()
+        }
+        var entries: [String] {
+            lock.lock()
+            defer { lock.unlock() }
+            return items
+        }
+    }
+
+    func testReportsEachStatusAndQueuedOnlyOnce() {
+        let server = FakeServer()
+        let queue = makeQueue(server)
+        let log = StatusLog()
+        queue.setStatusHandler(log.record)
+
+        queue.deliver(request("a"))
+        queue.deliver(request("b"))
+        queue.waitForQueuedWork()
+        XCTAssertEqual(log.entries, ["b queued"])
+
+        let retried = expectation(description: "a sent again")
+        server.onSend = { count in if count == 3 { retried.fulfill() } }
+        server.answer(0, .retry)
+        // Fails a second time: still reported as queued only once.
+        DispatchQueue.global().asyncAfter(deadline: .now() + 0.2) { server.answer(1, .retry) }
+        wait(for: [retried], timeout: 3)
+        server.onSend = nil
+        XCTAssertEqual(log.entries, ["b queued", "a queued"])
+
+        server.answer(2, .sent)
+        queue.waitForQueuedWork()
+        server.answer(3, .drop)
+        queue.waitForQueuedWork()
+        XCTAssertEqual(log.entries, ["b queued", "a queued", "a sent", "b rejected"])
+    }
+
+    func testReportsDroppedForExpiredRequest() {
+        let server = FakeServer()
+        let queue = makeQueue(server)
+        let log = StatusLog()
+        queue.setStatusHandler(log.record)
+
+        queue.deliver(request("old", at: Date().addingTimeInterval(-8 * 24 * 60 * 60)))
+        queue.waitForQueuedWork()
+        XCTAssertEqual(log.entries, ["old dropped"])
+        XCTAssertTrue(server.sentIDs.isEmpty)
+    }
+
     func testRejectedRequestIsDroppedAndTheNextOneSent() {
         let server = FakeServer()
         let queue = makeQueue(server)

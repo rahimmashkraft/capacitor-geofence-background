@@ -32,9 +32,21 @@ public class GeofenceBackgroundPlugin extends Plugin {
 
     @Override
     public void load() {
+        PluginEvents.attach(this);
         // Android drops geofences when location is switched off or Play services data is cleared.
         // Put ours back whenever the app starts while tracking is on.
         GeofenceTracker.restoreGeofence(getContext());
+    }
+
+    @Override
+    protected void handleOnDestroy() {
+        PluginEvents.detach(this);
+        super.handleOnDestroy();
+    }
+
+    /** Sends an event to JavaScript. Kept until a listener is added, if there is none yet. */
+    void emit(String eventName, JSObject data) {
+        notifyListeners(eventName, data, true);
     }
 
     @PluginMethod
@@ -81,6 +93,121 @@ public class GeofenceBackgroundPlugin extends Plugin {
                 result.put("message", "User tracking stopped successfully");
                 call.resolve(result);
             });
+    }
+
+    @PluginMethod
+    public void getStatus(PluginCall call) {
+        TrackingConfig config = TrackingConfig.load(getContext());
+        JSObject result = new JSObject();
+        result.put("isTracking", config != null);
+        if (config != null) {
+            result.put("latitude", config.latitude);
+            result.put("longitude", config.longitude);
+            result.put("radius", config.radius);
+            result.put("apiEndPoint", config.apiEndPoint);
+            result.put("userID", config.userID);
+        }
+        // Plugin methods run on Capacitor's plugin thread, so waiting for WorkManager here is fine.
+        result.put("pendingRequests", CheckInQueue.pendingCount(getContext()));
+        call.resolve(result);
+    }
+
+    @Override
+    @PluginMethod
+    public void checkPermissions(PluginCall call) {
+        call.resolve(permissionStatus());
+    }
+
+    /**
+     * Android 11 and later refuse a request for background location together with foreground
+     * location, so ask for precise location first and then for "Allow all the time".
+     */
+    @Override
+    @PluginMethod
+    public void requestPermissions(PluginCall call) {
+        if (!GeofenceTracker.isGranted(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)) {
+            requestPermissionForAlias(LOCATION, call, "requestLocationCallback");
+            return;
+        }
+        if (!GeofenceTracker.hasLocationPermissions(getContext())) {
+            requestPermissionForAlias(BACKGROUND_LOCATION, call, "requestBackgroundLocationCallback");
+            return;
+        }
+        call.resolve(permissionStatus());
+    }
+
+    @PermissionCallback
+    private void requestLocationCallback(PluginCall call) {
+        if (!GeofenceTracker.isGranted(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)) {
+            call.resolve(permissionStatus());
+            return;
+        }
+        requestPermissions(call);
+    }
+
+    @PermissionCallback
+    private void requestBackgroundLocationCallback(PluginCall call) {
+        call.resolve(permissionStatus());
+    }
+
+    private JSObject permissionStatus() {
+        String location = getPermissionState(LOCATION).toString();
+        JSObject result = new JSObject();
+        result.put(LOCATION, location);
+        // Before Android 10 there is no separate background permission: location covers it.
+        result.put(
+            BACKGROUND_LOCATION,
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ? location : getPermissionState(BACKGROUND_LOCATION).toString()
+        );
+        return result;
+    }
+
+    @PluginMethod
+    public void getCurrentLocation(PluginCall call) {
+        // Approximate location is enough here, unlike for geofencing.
+        if (
+            !GeofenceTracker.isGranted(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) &&
+            !GeofenceTracker.isGranted(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
+        ) {
+            requestPermissionForAlias(LOCATION, call, "currentLocationPermissionCallback");
+            return;
+        }
+        if (!LocationFetcher.isLocationEnabled(getContext())) {
+            call.reject("Location is switched off on the device", LocationFetcher.LOCATION_DISABLED);
+            return;
+        }
+        long timeout = Math.max(1, call.getLong("timeout", LocationFetcher.DEFAULT_TIMEOUT_MS));
+        long maximumAge = Math.max(0, call.getLong("maximumAge", 0L));
+        boolean highAccuracy = call.getBoolean("enableHighAccuracy", true);
+        LocationFetcher.fetch(
+            getContext(),
+            highAccuracy,
+            timeout,
+            maximumAge,
+            new LocationFetcher.Callback() {
+                @Override
+                public void onLocation(JSObject location) {
+                    call.resolve(location);
+                }
+
+                @Override
+                public void onError(String message, String code) {
+                    call.reject(message, code);
+                }
+            }
+        );
+    }
+
+    @PermissionCallback
+    private void currentLocationPermissionCallback(PluginCall call) {
+        if (
+            !GeofenceTracker.isGranted(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) &&
+            !GeofenceTracker.isGranted(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
+        ) {
+            call.reject("Location permission is required", LocationFetcher.PERMISSION_DENIED);
+            return;
+        }
+        getCurrentLocation(call);
     }
 
     @PermissionCallback

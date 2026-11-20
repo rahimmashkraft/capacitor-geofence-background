@@ -33,6 +33,119 @@
         "docs": "Stops watching the area and forgets the saved endpoint, user ID and token.",
         "complexTypes": [],
         "slug": "stoptrackuser"
+      },
+      {
+        "name": "getStatus",
+        "signature": "() => Promise<TrackingStatus>",
+        "parameters": [],
+        "returns": "Promise<TrackingStatus>",
+        "tags": [],
+        "docs": "Whether tracking is on, the area being watched, and how many requests are waiting to be retried.",
+        "complexTypes": [
+          "TrackingStatus"
+        ],
+        "slug": "getstatus"
+      },
+      {
+        "name": "getCurrentLocation",
+        "signature": "(options?: GetCurrentLocationOptions | undefined) => Promise<CurrentLocation>",
+        "parameters": [
+          {
+            "name": "options",
+            "docs": "",
+            "type": "GetCurrentLocationOptions | undefined"
+          }
+        ],
+        "returns": "Promise<CurrentLocation>",
+        "tags": [],
+        "docs": "Gets the device's current location once. Asks for location permission if needed (\"While Using\"\nis enough). While tracking is on, the result also says how far the device is from the area's\ncentre and whether it is inside.\n\nRejects with code `PERMISSION_DENIED`, `LOCATION_DISABLED` (location switched off on the device),\n`TIMEOUT` or `UNAVAILABLE`.",
+        "complexTypes": [
+          "CurrentLocation",
+          "GetCurrentLocationOptions"
+        ],
+        "slug": "getcurrentlocation"
+      },
+      {
+        "name": "checkPermissions",
+        "signature": "() => Promise<PermissionStatus>",
+        "parameters": [],
+        "returns": "Promise<PermissionStatus>",
+        "tags": [],
+        "docs": "The current location permissions, without asking the user.",
+        "complexTypes": [
+          "PermissionStatus"
+        ],
+        "slug": "checkpermissions"
+      },
+      {
+        "name": "requestPermissions",
+        "signature": "() => Promise<PermissionStatus>",
+        "parameters": [],
+        "returns": "Promise<PermissionStatus>",
+        "tags": [],
+        "docs": "Asks for location permission, then for background location (\"Always\" on iOS, \"Allow all the\ntime\" on Android), and resolves with the result. Permissions already granted or denied are\nnot asked again. `startTrackUser` also asks by itself, so calling this first is optional.",
+        "complexTypes": [
+          "PermissionStatus"
+        ],
+        "slug": "requestpermissions"
+      },
+      {
+        "name": "addListener",
+        "signature": "(eventName: 'geofenceEvent', listenerFunc: (event: GeofenceEvent) => void) => Promise<PluginListenerHandle>",
+        "parameters": [
+          {
+            "name": "eventName",
+            "docs": "",
+            "type": "'geofenceEvent'"
+          },
+          {
+            "name": "listenerFunc",
+            "docs": "",
+            "type": "(event: GeofenceEvent) => void"
+          }
+        ],
+        "returns": "Promise<PluginListenerHandle>",
+        "tags": [],
+        "docs": "Called when the device enters or leaves the area. Only while the app is running: an event\nthat happens while the app is closed still reaches your server, but not this listener.",
+        "complexTypes": [
+          "PluginListenerHandle",
+          "GeofenceEvent"
+        ],
+        "slug": "addlistenergeofenceevent-"
+      },
+      {
+        "name": "addListener",
+        "signature": "(eventName: 'requestResult', listenerFunc: (event: RequestResultEvent) => void) => Promise<PluginListenerHandle>",
+        "parameters": [
+          {
+            "name": "eventName",
+            "docs": "",
+            "type": "'requestResult'"
+          },
+          {
+            "name": "listenerFunc",
+            "docs": "",
+            "type": "(event: RequestResultEvent) => void"
+          }
+        ],
+        "returns": "Promise<PluginListenerHandle>",
+        "tags": [],
+        "docs": "Called when a check-in or check-out request is sent, saved for retry, rejected or dropped. Only while the app is running.",
+        "complexTypes": [
+          "PluginListenerHandle",
+          "RequestResultEvent"
+        ],
+        "slug": "addlistenerrequestresult-"
+      },
+      {
+        "name": "removeAllListeners",
+        "signature": "() => Promise<void>",
+        "parameters": [],
+        "returns": "Promise<void>",
+        "tags": [],
+        "docs": "Removes every listener added with `addListener`.",
+        "complexTypes": [],
+        "slug": "removealllisteners"
       }
     ],
     "properties": []
@@ -146,9 +259,303 @@
           "type": "string | undefined"
         }
       ]
+    },
+    {
+      "name": "TrackingStatus",
+      "slug": "trackingstatus",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "isTracking",
+          "tags": [],
+          "docs": "True between `startTrackUser` and `stopTrackUser`, also after the app restarts.",
+          "complexTypes": [],
+          "type": "boolean"
+        },
+        {
+          "name": "latitude",
+          "tags": [],
+          "docs": "The area being watched. Only set while tracking.",
+          "complexTypes": [],
+          "type": "number | undefined"
+        },
+        {
+          "name": "longitude",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "number | undefined"
+        },
+        {
+          "name": "radius",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "number | undefined"
+        },
+        {
+          "name": "apiEndPoint",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "string | undefined"
+        },
+        {
+          "name": "userID",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "number | undefined"
+        },
+        {
+          "name": "pendingRequests",
+          "tags": [],
+          "docs": "Requests saved for retry and not yet delivered. They are still sent after `stopTrackUser`.",
+          "complexTypes": [],
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "CurrentLocation",
+      "slug": "currentlocation",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "latitude",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "number"
+        },
+        {
+          "name": "longitude",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "number"
+        },
+        {
+          "name": "accuracy",
+          "tags": [],
+          "docs": "How far off the position may be, in metres.",
+          "complexTypes": [],
+          "type": "number"
+        },
+        {
+          "name": "altitude",
+          "tags": [],
+          "docs": "Metres above sea level, if known.",
+          "complexTypes": [],
+          "type": "number | undefined"
+        },
+        {
+          "name": "altitudeAccuracy",
+          "tags": [],
+          "docs": "How far off the altitude may be, in metres, if known.",
+          "complexTypes": [],
+          "type": "number | undefined"
+        },
+        {
+          "name": "speed",
+          "tags": [],
+          "docs": "Metres per second, if known.",
+          "complexTypes": [],
+          "type": "number | undefined"
+        },
+        {
+          "name": "heading",
+          "tags": [],
+          "docs": "Direction of travel in degrees from north (0 to 360), if known.",
+          "complexTypes": [],
+          "type": "number | undefined"
+        },
+        {
+          "name": "timestamp",
+          "tags": [],
+          "docs": "When the device measured this location, ISO 8601 in UTC.",
+          "complexTypes": [],
+          "type": "string"
+        },
+        {
+          "name": "distanceFromCenter",
+          "tags": [],
+          "docs": "Metres from the centre of the area being tracked. Only set while tracking.",
+          "complexTypes": [],
+          "type": "number | undefined"
+        },
+        {
+          "name": "isInsideArea",
+          "tags": [],
+          "docs": "Whether the device is inside the area being tracked. Only set while tracking.",
+          "complexTypes": [],
+          "type": "boolean | undefined"
+        }
+      ]
+    },
+    {
+      "name": "GetCurrentLocationOptions",
+      "slug": "getcurrentlocationoptions",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "enableHighAccuracy",
+          "tags": [],
+          "docs": "Use GPS for the best accuracy. Slower and uses more battery. Default `true`.",
+          "complexTypes": [],
+          "type": "boolean | undefined"
+        },
+        {
+          "name": "timeout",
+          "tags": [],
+          "docs": "Give up after this many milliseconds. Default `10000`.",
+          "complexTypes": [],
+          "type": "number | undefined"
+        },
+        {
+          "name": "maximumAge",
+          "tags": [],
+          "docs": "Accept a location the device already has if it is at most this many milliseconds old. Default `0`: always get a new one.",
+          "complexTypes": [],
+          "type": "number | undefined"
+        }
+      ]
+    },
+    {
+      "name": "PermissionStatus",
+      "slug": "permissionstatus",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "location",
+          "tags": [],
+          "docs": "Location while the app is in use. Android needs precise location.",
+          "complexTypes": [
+            "PermissionState"
+          ],
+          "type": "PermissionState"
+        },
+        {
+          "name": "backgroundLocation",
+          "tags": [],
+          "docs": "Location while the app is in the background or closed: \"Always\" on iOS, \"Allow all the time\" on Android.",
+          "complexTypes": [
+            "PermissionState"
+          ],
+          "type": "PermissionState"
+        }
+      ]
+    },
+    {
+      "name": "PluginListenerHandle",
+      "slug": "pluginlistenerhandle",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "remove",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "() => Promise<void>"
+        }
+      ]
+    },
+    {
+      "name": "GeofenceEvent",
+      "slug": "geofenceevent",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "eventId",
+          "tags": [],
+          "docs": "Same as the `event_id` sent to the server.",
+          "complexTypes": [],
+          "type": "string"
+        },
+        {
+          "name": "transition",
+          "tags": [],
+          "docs": "`enter` for a check-in, `exit` for a check-out.",
+          "complexTypes": [],
+          "type": "'enter' | 'exit'"
+        },
+        {
+          "name": "timestamp",
+          "tags": [],
+          "docs": "When it happened, ISO 8601 in UTC. Same as the `timestamp` sent to the server.",
+          "complexTypes": [],
+          "type": "string"
+        },
+        {
+          "name": "latitude",
+          "tags": [],
+          "docs": "Latitude of the area's centre.",
+          "complexTypes": [],
+          "type": "number"
+        },
+        {
+          "name": "longitude",
+          "tags": [],
+          "docs": "Longitude of the area's centre.",
+          "complexTypes": [],
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "RequestResultEvent",
+      "slug": "requestresultevent",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "status",
+          "tags": [],
+          "docs": "- `sent`: the server answered with a `2xx` status.\n- `queued`: sending failed (no network, timeout, `408`, `429` or `5xx`), or earlier requests\n  are still waiting. It is saved and retried; a later `sent` follows if the app is running then.\n- `rejected`: the server answered with another status, such as `400` or `401`. Not retried.\n- `dropped`: it waited more than 7 days (or, on iOS, more than 100 requests were waiting). Not sent.",
+          "complexTypes": [],
+          "type": "'sent' | 'queued' | 'rejected' | 'dropped'"
+        }
+      ]
     }
   ],
   "enums": [],
-  "typeAliases": [],
+  "typeAliases": [
+    {
+      "name": "PermissionState",
+      "slug": "permissionstate",
+      "docs": "",
+      "types": [
+        {
+          "text": "'prompt'",
+          "complexTypes": []
+        },
+        {
+          "text": "'prompt-with-rationale'",
+          "complexTypes": []
+        },
+        {
+          "text": "'granted'",
+          "complexTypes": []
+        },
+        {
+          "text": "'denied'",
+          "complexTypes": []
+        }
+      ]
+    }
+  ],
   "pluginConfigs": []
 }

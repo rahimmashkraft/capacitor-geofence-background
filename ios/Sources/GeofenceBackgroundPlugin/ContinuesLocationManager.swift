@@ -11,6 +11,51 @@ class ContinuesLocationManager: NSObject, CLLocationManagerDelegate {
     var myLocation: CLLocation?
     var isTrackUser: Bool = false
     private var monitoredRegion: CLCircularRegion?
+    private static let alwaysRequestedKey = "GeofenceBackgroundAlwaysRequested"
+
+    /// Called on the main thread for each entry or exit, before the request is sent.
+    var onTransition: ((CheckInRequest) -> Void)?
+    /// Called on the main thread whenever the location authorization changes.
+    var onAuthorizationChange: ((CLAuthorizationStatus) -> Void)?
+    /// While true, the automatic "Always" request after "While Using" is skipped, because
+    /// requestPermissions is asking for it itself.
+    var suppressAutoAlwaysRequest = false
+
+    var authorizationStatus: CLAuthorizationStatus {
+        if #available(iOS 14.0, *) {
+            return locationManager.authorizationStatus
+        }
+        return CLLocationManager.authorizationStatus()
+    }
+
+    /// iOS shows the "Always" prompt only once, so after that a missing "Always" means denied.
+    var hasRequestedAlways: Bool {
+        UserDefaults.standard.bool(forKey: ContinuesLocationManager.alwaysRequestedKey)
+    }
+
+    func requestWhenInUse() {
+        locationManager.requestWhenInUseAuthorization()
+    }
+
+    func requestAlways() {
+        UserDefaults.standard.set(true, forKey: ContinuesLocationManager.alwaysRequestedKey)
+        locationManager.requestAlwaysAuthorization()
+    }
+
+    /// The values saved by startTrackUser, or nil when tracking is off.
+    func savedArea() -> (latitude: Double, longitude: Double, radius: Double, apiEndPoint: String, userID: Int)? {
+        let defaults = UserDefaults.standard
+        guard let endpoint = defaults.string(forKey: "StoredAPIEndpoint"), !endpoint.isEmpty else {
+            return nil
+        }
+        return (
+            defaults.double(forKey: "StoredLatitude"),
+            defaults.double(forKey: "StoredLongitude"),
+            defaults.double(forKey: "StoredRadius"),
+            endpoint,
+            defaults.integer(forKey: "StoredUserID")
+        )
+    }
 
     override init() {
         super.init()
@@ -76,6 +121,7 @@ class ContinuesLocationManager: NSObject, CLLocationManagerDelegate {
     }
 
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        onAuthorizationChange?(status)
 
         switch status {
         case .notDetermined:
@@ -90,15 +136,10 @@ class ContinuesLocationManager: NSObject, CLLocationManagerDelegate {
             }
 
         case .authorizedWhenInUse:
+            guard !suppressAutoAlwaysRequest else { break }
             DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(2)) {
-                if #available(iOS 14.0, *) {
-                    manager.requestAlwaysAuthorization()
-                } else {
-                    // For iOS 13 and below, always request "Always" authorization
-                    DispatchQueue.main.async {
-                        manager.requestAlwaysAuthorization()
-                    }
-                }
+                guard !self.suppressAutoAlwaysRequest, self.authorizationStatus == .authorizedWhenInUse else { return }
+                self.requestAlways()
             }
 
         case .authorizedAlways:
@@ -201,8 +242,7 @@ class ContinuesLocationManager: NSObject, CLLocationManagerDelegate {
             return
         }
 
-        // Sent now if possible; otherwise saved and retried, in order, until the server answers.
-        CheckInQueue.shared.deliver(CheckInRequest(
+        let request = CheckInRequest(
             eventID: UUID().uuidString.lowercased(),
             endpoint: storedAPIEndpoint,
             authToken: defaults.string(forKey: "auth_token") ?? "",
@@ -211,7 +251,10 @@ class ContinuesLocationManager: NSObject, CLLocationManagerDelegate {
             longitude: defaults.double(forKey: "StoredLongitude"),
             isCheckin: isCheckin,
             timestamp: Date()
-        ))
+        )
+        onTransition?(request)
+        // Sent now if possible; otherwise saved and retried, in order, until the server answers.
+        CheckInQueue.shared.deliver(request)
     }
 
 }
