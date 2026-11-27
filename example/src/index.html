@@ -2,31 +2,74 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="UTF-8" />
-    <title>Awesome Capacitor App</title>
-    <meta
-      name="viewport"
-      content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
+    <title>Geofence Example</title>
+    <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0" />
     <meta name="format-detection" content="telephone=no" />
-    <meta name="msapplication-tap-highlight" content="no" />
-
-    <script
-      type="module"
-      src="https://unpkg.com/@ionic/pwa-elements@latest/dist/ionicpwaelements/ionicpwaelements.esm.js"
-    ></script>
-    <script
-      nomodule
-      src="https://unpkg.com/@ionic/pwa-elements@latest/dist/ionicpwaelements/ionicpwaelements.js"
-    ></script>
-
     <link rel="icon" type="image/x-icon" href="./assets/icon/favicon.ico" />
     <link rel="manifest" href="./manifest.json" />
     <link rel="stylesheet" href="./css/style.css" />
-    <meta name="theme-color" content="#31d53d" />
+    <meta name="theme-color" content="#2563eb" />
   </head>
   <body>
-    <capacitor-welcome></capacitor-welcome>
+    <header>
+      <h1>Geofence Example</h1>
+      <p class="sub">capacitor-geofence-background</p>
+    </header>
 
-    <script src="./js/capacitor-welcome.js" type="module"></script>
+    <main>
+      <section>
+        <h2>1. Permissions</h2>
+        <p class="hint">Background tracking needs "Always" (iOS) or "Allow all the time" (Android).</p>
+        <div class="row">
+          <button id="check-perms" class="secondary">Check</button>
+          <button id="request-perms">Request</button>
+        </div>
+      </section>
+
+      <section>
+        <h2>2. Area and endpoint</h2>
+        <form id="track-form">
+          <div class="grid">
+            <label>Latitude <input name="lat" inputmode="decimal" required /></label>
+            <label>Longitude <input name="long" inputmode="decimal" required /></label>
+          </div>
+          <button type="button" id="use-location" class="secondary wide">Use my current location</button>
+          <label>Radius (metres) <input name="radius" type="number" min="1" value="150" required /></label>
+          <label>
+            API endpoint
+            <input name="apiEndPoint" type="url" placeholder="https://your-request-bin.example/attendance" required />
+          </label>
+          <div class="grid">
+            <label>User ID <input name="userID" type="number" value="1" required /></label>
+            <label>Auth token <input name="auth_token" value="demo-token" /></label>
+          </div>
+          <div class="row">
+            <button type="submit">Start tracking</button>
+            <button type="button" id="stop" class="danger">Stop</button>
+          </div>
+        </form>
+      </section>
+
+      <section>
+        <h2>3. Status</h2>
+        <div class="row">
+          <button id="status" class="secondary">Get status</button>
+          <button id="where" class="secondary">Where am I?</button>
+        </div>
+        <pre id="status-out">Tap "Get status".</pre>
+      </section>
+
+      <section>
+        <h2>Event log</h2>
+        <p class="hint">
+          Entries, exits and request results while the app is open. Events while the app is closed still reach your
+          endpoint.
+        </p>
+        <button id="clear-log" class="secondary small">Clear</button>
+        <ol id="log"></ol>
+      </section>
+    </main>
+
+    <script src="./js/main.js" type="module"></script>
   </body>
 </html>

@@ -131,25 +131,23 @@ Google Play requires you to declare background location use in the Play Console.
 
 ## Running the example app
 
-The [`example/`](example) folder is a small Vite + Capacitor app that installs the plugin from this repository (`"capacitor-geofence-background": "file:.."`), so it always runs your local changes.
+The [`example/`](example) folder is a small Capacitor 8 app with a screen for every plugin method: permissions, current location, start and stop tracking, status, and a live log of entries, exits and request results. It installs the plugin from this repository (`"capacitor-geofence-background": "file:.."`), so it always runs your local changes. Its iOS and Android projects are included, with the location permission texts already set.
 
 ```bash
 # 1. Build the plugin (from the repository root)
 npm install
 npm run build
 
-# 2. Build the example's web app
+# 2. Install the example, build it and copy it into the native projects
 cd example
 npm install
-npm run build
+npm run sync
 
-# 3. Add a native platform, sync, and open it in Xcode or Android Studio
-npx cap add ios        # or: npx cap add android
-npx cap sync
-npx cap open ios       # or: npx cap open android
+# 3. Run it on a device, simulator or emulator
+npx cap run ios        # or: npx cap run android
 ```
 
-Before running on a device, add the iOS `Info.plist` keys from [Platform setup](#platform-setup), then call `GeofenceBackground.startTrackUser(...)` from `example/src/js/capacitor-welcome.js` with a location near you and an endpoint you control (a request bin works well for watching check-ins arrive). After changing plugin code, run `npm run build` at the root and `npx cap sync` in `example/` again.
+In the app, tap **Use my current location**, enter an endpoint you control (a request bin such as webhook.site works well for watching check-ins arrive), and tap **Start tracking**. Walk out of the area and back, or move the simulator's location (Features → Location in the iOS Simulator, or the emulator's location controls), to see check-outs and check-ins. After changing plugin code, run `npm run build` at the root and `npm run sync` in `example/` again.
 
 ## API
 

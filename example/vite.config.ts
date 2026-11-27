@@ -7,4 +7,9 @@ export default defineConfig({
     minify: false,
     emptyOutDir: true,
   },
+  resolve: {
+    // The plugin is linked from `..`, which has its own node_modules. Make sure the
+    // app and the plugin share one copy of @capacitor/core.
+    dedupe: ['@capacitor/core'],
+  },
 });

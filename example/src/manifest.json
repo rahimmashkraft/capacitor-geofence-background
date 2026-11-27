@@ -1,13 +1,15 @@
 {
-  "name": "App",
-  "short_name": "App",
+  "name": "Geofence Example",
+  "short_name": "Geofence",
   "start_url": "index.html",
   "display": "standalone",
-  "icons": [{
-    "src": "assets/imgs/logo.png",
-    "sizes": "512x512",
-    "type": "image/png"
-  }],
-  "background_color": "#31d53d",
-  "theme_color": "#31d53d"
+  "icons": [
+    {
+      "src": "assets/imgs/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "background_color": "#2563eb",
+  "theme_color": "#2563eb"
 }
