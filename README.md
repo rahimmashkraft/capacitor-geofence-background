@@ -1,6 +1,10 @@
 # capacitor-geofence-background
 
 [![npm version](https://img.shields.io/npm/v/capacitor-geofence-background)](https://www.npmjs.com/package/capacitor-geofence-background)
+[![npm downloads](https://img.shields.io/npm/dm/capacitor-geofence-background)](https://www.npmjs.com/package/capacitor-geofence-background)
+[![CI](https://github.com/rahimmashkraft/capacitor-geofence-background/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/rahimmashkraft/capacitor-geofence-background/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/npm/l/capacitor-geofence-background)](https://github.com/rahimmashkraft/capacitor-geofence-background/blob/main/LICENSE)
+[![Known Vulnerabilities](https://snyk.io/test/github/rahimmashkraft/capacitor-geofence-background/badge.svg)](https://snyk.io/test/github/rahimmashkraft/capacitor-geofence-background)
 
 Automatic check-in and check-out with a geofence. You give the plugin a location, a radius and an API endpoint. When the device enters or leaves that area, the plugin sends a check-in or check-out request to your server, even when the app is in the background or has been closed.
 
@@ -124,6 +128,28 @@ Add both location usage descriptions to `Info.plist`. The plugin asks for "While
 The plugin's manifest adds the location, background location, internet and boot permissions. `startTrackUser` asks for precise location, then for "Allow all the time". Without "Allow all the time" it rejects, because Android geofences don't fire in the background otherwise.
 
 Google Play requires you to declare background location use in the Play Console.
+
+## Running the example app
+
+The [`example/`](example) folder is a small Vite + Capacitor app that installs the plugin from this repository (`"capacitor-geofence-background": "file:.."`), so it always runs your local changes.
+
+```bash
+# 1. Build the plugin (from the repository root)
+npm install
+npm run build
+
+# 2. Build the example's web app
+cd example
+npm install
+npm run build
+
+# 3. Add a native platform, sync, and open it in Xcode or Android Studio
+npx cap add ios        # or: npx cap add android
+npx cap sync
+npx cap open ios       # or: npx cap open android
+```
+
+Before running on a device, add the iOS `Info.plist` keys from [Platform setup](#platform-setup), then call `GeofenceBackground.startTrackUser(...)` from `example/src/js/capacitor-welcome.js` with a location near you and an endpoint you control (a request bin works well for watching check-ins arrive). After changing plugin code, run `npm run build` at the root and `npx cap sync` in `example/` again.
 
 ## API
 
